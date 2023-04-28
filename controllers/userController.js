@@ -49,13 +49,20 @@ catch(error){
 
 
 const getUser=async(req,res)=>{
-
+try
+{
 let findData= req.userData
 delete findData.iat
-findData.isDeleted=false;
 
 let userData= await userModel.findOne(findData)
+if(!userData) return res.status(400).send({status:false,message:"user is not present"})
+if(userData.isDeleted) return res.status(400).send({status:false,message:"user is already deleted"})
+
 return res.status(200).send({status:true,userData:userData})
+}
+catch(err){
+    return res.status(500).send({status:false,message:err.message})
+}
 
 }
 
@@ -95,12 +102,14 @@ const deleteUser=async(req,res)=>{
     try
     {
     let findData=req.query.user_id
-    let deletedUser=await userModel.findOneAndUpdate({_id:findData},{$set:{
-        isDeleted:true
-    }})
+    let deletedUser=await userModel.findOne({_id:findData})
 
 if(!deletedUser) return res.status(400).send({message:"unSuccess"})
 if(deletedUser.isDeleted) return res.status(400).send({status:false,message:"user is already deleted"})
+
+await userModel.findOneAndUpdate({_id:findData},{$set:{
+    isDeleted:true
+}})
 
     return res.status(200).send({status:true,message:"success"})
     }
