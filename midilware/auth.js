@@ -9,7 +9,6 @@ jwt.verify(token,"key",(err,data)=>{
     if(err) return res.status(401).send({status:false,message:"token is not valid"})
     else{
         req.userData=data
-        // console.log(data)
         next();
     }
 })

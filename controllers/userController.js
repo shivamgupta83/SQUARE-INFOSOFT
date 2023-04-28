@@ -52,7 +52,8 @@ const getUser=async(req,res)=>{
 
 let findData= req.userData
 delete findData.iat
-console.log(findData)
+findData.isDeleted=false;
+
 let userData= await userModel.findOne(findData)
 return res.status(200).send({status:true,userData:userData})
 
@@ -64,6 +65,9 @@ try
 {
     let findData=req.query.user_id
 let userData= await userModel.findOne({_id:findData})
+if(!userData) return res.status(400).send({status:false,message:"user is not present in DB"})
+if(userData.isDeleted) return res.status(400).send({status:false,message:"user is deleted"})
+
 return res.status(200).send({status:true,userData:userData})
 }
 catch(error){
@@ -75,7 +79,9 @@ catch(error){
 const getAllUser=async(req,res)=>{
     try
     {
-    let userData= await userModel.find()
+    let userData= await userModel.find({isDeleted:false})
+    if(userData.length==0) return res.status(400).send({status:false,message:"users is not present"})
+
     return res.status(200).send({status:true,userData:userData})
     }
     catch(error){
