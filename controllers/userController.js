@@ -36,7 +36,7 @@ const savedData= await userModel.create(body)
 const data={
     _id:savedData._id,
     email:savedData.email,
-    password:savedData.password,    
+    password:savedData.password,
 }
 
 const token = jwt.sign(data,"key")
